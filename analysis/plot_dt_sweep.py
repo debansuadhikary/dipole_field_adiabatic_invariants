@@ -10,9 +10,6 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 def find_sweep_dir():
-    """Look in a few sensible places so this works whether analysis/ and
-    src/ are siblings (repo layout) or everything's been flattened into one
-    folder (as happens after unzipping/copying just the files you need)."""
     if len(sys.argv) > 1:
         return Path(sys.argv[1])
     here = Path(__file__).resolve().parent
