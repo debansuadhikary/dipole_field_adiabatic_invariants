@@ -15,11 +15,11 @@ The **first adiabatic invariant** (magnetic moment),
 μ = m v_perp² / (2|B|)
 ```
 
-is approximately conserved whenever the field varies slowly compared to the gyration timescale. This project computes μ directly from the simulated trajectory and checks how well that conservation actually holds — including a subtlety: the *instantaneous* μ has a real, physical ripple at the gyro-frequency (a finite-Larmor-radius effect in a non-uniform field), so a **running gyro-average** of μ is used to see the true secular trend instead of that ripple.
+is approximately conserved whenever the field varies slowly compared to the gyration timescale. This project computes μ directly from the simulated trajectory and checks how well that conservation actually holds including a subtlety: the *instantaneous* μ has a real, physical ripple at the gyro-frequency (a finite-Larmor-radius effect in a non-uniform field), so a **running gyro-average** of μ is used to see the true secular trend instead of that ripple.
 
 ## Architecture
 
-The entire integration loop runs in C — this is a deliberate performance choice (RK4 needs many evaluations per gyro-period, and a full dt sweep means running that loop several times over) — and writes its output to CSV. Python only reads and plots; it does no numerical integration.
+The entire integration loop runs in C which is a deliberate performance choice (RK4 needs many evaluations per gyro-period, and a full dt sweep means running that loop several times over) and writes its output to CSV. Python only reads and plots; it does no numerical integration.
 
 ```
 src/main.c  --(writes)-->  trajectory.csv  --(read by)-->  analysis/*.py  --> PNGs
@@ -54,7 +54,7 @@ The C code is split so pieces are independently testable and reusable:
     └── plot_dt_sweep.py    # mu conservation vs. dt, across the sweep
 ```
 
-`src/sweep/*.csv`, compiled binaries, and generated PNGs are **not** committed (see `.gitignore`) — they're all reproducible from source via the commands below.
+`src/sweep/*.csv`, compiled binaries, and generated PNGs are **not** committed (see `.gitignore`) they're all reproducible from source via the commands below.
 
 ## Build & run
 
@@ -97,7 +97,7 @@ python3 plot_dt_sweep.py            # expects ../src/sweep/traj_dt*.csv
 
 ![dt sweep](analysis/dt_sweep.png)
 
-The key finding: conservation quality is essentially **flat** across most of this range — the settled-region error sits at ~3.6×10⁻³ regardless of `dt`, only degrading at the coarsest step (`dt=0.02`, ~39 steps per gyro-period). This means RK4's numerical error is not the limiting factor for invariant conservation here; the residual offset and ripple are real physics (an initial transient settling onto the natural orbit, plus bounce-timescale modulation of the gyro-average window) rather than integration error.
+The key finding: conservation quality is essentially **flat** across most of this range, the settled-region error sits at ~3.6×10^-3 regardless of `dt`, only degrading at the coarsest step (`dt=0.02`, ~39 steps per gyro-period). This means RK4's numerical error is not the limiting factor for invariant conservation here; the residual offset and ripple are real physics (an initial transient settling onto the natural orbit, plus bounce-timescale modulation of the gyro-average window) rather than integration error.
 
 ## Possible next steps
 
