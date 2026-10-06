@@ -6,31 +6,21 @@
 #include "gyro_avg.h"
 
 /*
- * Charged particle state: {x, y, z, vx, vy, vz}
- * Equation of motion: dv/dt = (q/m) * (v x B)
- *
- * We carry q/m as a single ratio "qm" rather than separate q and m —
- * that's all the Lorentz force actually depends on.
+  Charged particle state: {x, y, z, vx, vy, vz}
+  Equation of motion: dv/dt = (q/m) * (v x B)
+ 
+  We carry q/m as a single ratio "qm" rather than separate q and m.
  */
 typedef struct {
     double qm;         /* charge-to-mass ratio */
-    double m;          /* mass — kept explicit (=1 by default) so mu's
-                           formula reads the same as the physics: only the
-                           equation of motion needs q/m, mu needs m alone */
+    double m;          /* mass — kept explicit (=1 by default) so mu's formula reads the same as the physics: only the equation of motion needs q/m, mu needs m alone */
     DipoleParams dip;  /* dipole field parameters */
 } ParticleParams;
 
 /*
- * Diagnostic: first adiabatic invariant mu = m*v_perp^2 / (2*|B|), plus the
- * local field magnitude (useful on its own for sanity checks / later
- * bounce-point detection). v_perp is the component of v perpendicular to
- * the *local* B direction — NOT just vx,vy, since B's direction rotates
- * as the particle moves off the equatorial plane.
- *
- * This does an extra dipole_field() call at the *current* state, separate
- * from the ones rk4_step() does internally at intermediate RK4 stages —
- * we want mu evaluated exactly at the state we're about to record, not at
- * some k2/k3 midpoint.
+  Diagnostic: first adiabatic invariant mu = m*v_perp^2 / (2*|B|), plus the local field magnitude. v_perp is the component of v perpendicular to the *local* B direction, not just vx,vy, since B's direction rotates as the particle moves off the equatorial plane.
+
+  This does an extra dipole_field() call at the *current* state, separate from the ones rk4_step() does internally at intermediate RK4 stages we want mu evaluated exactly at the state we're about to record, not at some k2/k3 midpoint.
  */
 static void compute_mu(const double *state, const ParticleParams *pp,
                         double *mu_out, double *Bmag_out) {
@@ -74,8 +64,7 @@ static void particle_deriv(double t, const double *state, double *dstate, void *
 }
 
 int main(int argc, char **argv) {
-    /* Defaults — all overridable via command line so we can sweep dt later
-       without recompiling (see project plan: dt sweep is the key rigor result) */
+    /* Defaults all overridable via command line so we can sweep dt later without recompiling */
     double dt = 0.001;
     long nsteps = 2000000;
     long output_stride = 200; /* write every Nth step, else the CSV is huge */
@@ -91,10 +80,9 @@ int main(int argc, char **argv) {
     pp.m = 1.0;
     pp.dip.M = 1000.0;
 
-    /* Initial conditions: start in the equatorial plane at L=5, where the
-       field points purely along -z (Bz = -M/L^3 there, Bx=By=0), so
-       "parallel" and "perpendicular" are simply z vs. the xy-plane at t=0.
-       vy = perpendicular (gyration) speed, vz = parallel (bounce) speed. */
+    /* Initial conditions: start in the equatorial plane at L=5, where the field points purely along -z (Bz = -M/L^3 there, Bx=By=0), so "parallel" and "perpendicular" are simply z vs. the xy-plane at t=0.
+       vy = perpendicular (gyration) speed, vz = parallel (bounce) speed. 
+    */
     double state[6] = {
         5.0, 0.0, 0.0,   /* x, y, z */
         0.0, 1.0, 0.5    /* vx, vy, vz */
@@ -109,8 +97,7 @@ int main(int argc, char **argv) {
     }
     fprintf(f, "t,x,y,z,vx,vy,vz,mu,mu_avg,Bmag\n");
 
-    /* Record mu at t=0 so every later value in analysis can be normalized
-       as mu(t)/mu(0) - the actual "how well is it conserved" metric. */
+    /* Record mu at t=0 so every later value in analysis can be normalized as mu(t)/mu(0) - the actual "how well is it conserved" metric. */
     double mu0, Bmag0;
     compute_mu(state, &pp, &mu0, &Bmag0);
     fprintf(stderr, "initial mu = %.8f (Bmag=%.6f)\n", mu0, Bmag0);
@@ -122,9 +109,7 @@ int main(int argc, char **argv) {
     for (i = 0; i <= nsteps; i++) {
         double t = i * dt;
 
-        /* mu must be pushed every step (not just on output rows) so the
-           averaging window actually contains a full local gyro-period's
-           worth of samples, regardless of output_stride. */
+        /* mu must be pushed every step so the averaging window actually contains a full local gyro-period's worth of samples, regardless of output_stride. */
         double mu, Bmag;
         compute_mu(state, &pp, &mu, &Bmag);
         double T_local = 2.0 * M_PI / (pp.qm * Bmag); /* local gyro-period */
