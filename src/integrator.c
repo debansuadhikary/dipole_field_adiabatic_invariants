@@ -1,12 +1,12 @@
 #include "integrator.h"
 
 /*
- * scratch layout (caller allocates 5*dim doubles):
- *   scratch[0*dim .. 1*dim)  = k1
- *   scratch[1*dim .. 2*dim)  = k2
- *   scratch[2*dim .. 3*dim)  = k3
- *   scratch[3*dim .. 4*dim)  = k4
- *   scratch[4*dim .. 5*dim)  = tmp (temporary state for midpoint/endpoint evals)
+ scratch layout (caller allocates 5*dim doubles):
+    scratch[0*dim .. 1*dim)  = k1
+    scratch[1*dim .. 2*dim)  = k2
+    scratch[2*dim .. 3*dim)  = k3
+    scratch[3*dim .. 4*dim)  = k4
+    scratch[4*dim .. 5*dim)  = tmp (temporary state for midpoint/endpoint evals)
  */
 void rk4_step(DerivFunc deriv, double t, double dt, double *state, int dim,
               void *params, double *scratch) {
