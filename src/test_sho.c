@@ -3,9 +3,9 @@
 #include "integrator.h"
 
 /*
- * Simple harmonic oscillator: x'' = -omega^2 * x
- * state = {x, v}, dstate = {v, -omega^2 * x}
- * params = pointer to a single double: omega^2
+  Simple harmonic oscillator: x'' = -omega^2 * x
+  state = {x, v}, dstate = {v, -omega^2 * x}
+  params = pointer to a single double: omega^2
  */
 void sho_deriv(double t, const double *state, double *dstate, void *params) {
     (void)t;
