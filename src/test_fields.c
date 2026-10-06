@@ -20,9 +20,7 @@ int main(void) {
     printf("equatorial x=%.2f: numeric=(%.6f,%.6f,%.6f)  analytic Bz=%.6f\n",
            x, Bx, By, Bz, B_eq_analytic);
 
-    /* Sanity: |B| should fall off faster on-axis than equatorial is wrong way
-       to check -- instead confirm ratio B_onaxis/B_eq = 2 at equal distance,
-       a standard dipole property. */
+    /* Sanity: |B| should fall off faster on-axis than equatorial is wrong way to check instead confirm ratio B_onaxis/B_eq = 2 at equal distance, a standard dipole property. */
     printf("ratio (on-axis Bz) / (equatorial |Bz|) at equal r = %.6f (expect 2.0)\n",
            fabs(B_onaxis_analytic) / fabs(B_eq_analytic));
 
